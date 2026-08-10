@@ -1,38 +1,36 @@
 import httpx
-from fastapi import FastAPI, HTTPException, UploadFile
+from fastapi import APIRouter, HTTPException, UploadFile
 
 from app.schemas import DependencyInput
-from app.services.osv import query_osv, query_osv_batch
-from app.services.requirements_parser import parse_requirements_txt
-from app.routers.npm import router as npm_router
-
-MAX_REQUIREMENTS_FILE_SIZE = 1_000_000
+from app.services.osv import query_osv_batch
+from app.services.package_lock_parser import parse_package_lock
 
 
-app = FastAPI(
-    title="Observatoire du risque supply chain open source",
-    description="API d'analyse des dépendances Python et JavaScript.",
-    version="0.5.0",
+router = APIRouter(
+    prefix="/files/package-lock",
+    tags=["JavaScript / npm"],
 )
-app.include_router(npm_router)
 
-async def read_requirements_upload(
+MAX_PACKAGE_LOCK_FILE_SIZE = 1_000_000
+
+
+async def read_package_lock_upload(
     file: UploadFile,
 ) -> tuple[str, list[DependencyInput]]:
     filename = file.filename
 
-    if not filename or not filename.lower().endswith(".txt"):
+    if not filename or not filename.lower().endswith(".json"):
         raise HTTPException(
             status_code=400,
-            detail="Un fichier .txt est obligatoire.",
+            detail="Un fichier .json est obligatoire.",
         )
 
     raw_content = await file.read(
-        MAX_REQUIREMENTS_FILE_SIZE + 1
+        MAX_PACKAGE_LOCK_FILE_SIZE + 1
     )
     await file.close()
 
-    if len(raw_content) > MAX_REQUIREMENTS_FILE_SIZE:
+    if len(raw_content) > MAX_PACKAGE_LOCK_FILE_SIZE:
         raise HTTPException(
             status_code=413,
             detail="Le fichier dépasse la taille maximale autorisée.",
@@ -47,7 +45,7 @@ async def read_requirements_upload(
         ) from error
 
     try:
-        dependencies = parse_requirements_txt(content)
+        dependencies = parse_package_lock(content)
     except ValueError as error:
         raise HTTPException(
             status_code=422,
@@ -57,61 +55,15 @@ async def read_requirements_upload(
     return filename, dependencies
 
 
-@app.get("/")
-def root() -> dict[str, str]:
-    return {
-        "name": "Supply Chain Observatory",
-        "status": "running",
-        "version": "0.5.0",
-    }
-
-
-@app.get("/health")
-def health() -> dict[str, str]:
-    return {"status": "ok"}
-
-
-@app.post("/dependencies/analyze")
-async def analyze_dependency(
-    dependency: DependencyInput,
-) -> dict[str, object]:
-    try:
-        vulnerabilities = await query_osv(dependency)
-    except httpx.HTTPError as error:
-        raise HTTPException(
-            status_code=502,
-            detail="Le service OSV est temporairement indisponible.",
-        ) from error
-
-    vulnerability_summaries = [
-        {
-            "id": vulnerability.get("id"),
-            "summary": vulnerability.get(
-                "summary",
-                "Résumé non disponible",
-            ),
-            "aliases": vulnerability.get("aliases", []),
-            "modified": vulnerability.get("modified"),
-        }
-        for vulnerability in vulnerabilities
-    ]
-
-    return {
-        "dependency": dependency.model_dump(),
-        "vulnerability_count": len(vulnerability_summaries),
-        "vulnerabilities": vulnerability_summaries,
-        "status": "completed",
-    }
-
-
-@app.post("/files/requirements/preview")
-async def preview_requirements_file(
+@router.post("/preview")
+async def preview_package_lock(
     file: UploadFile,
 ) -> dict[str, object]:
-    filename, dependencies = await read_requirements_upload(file)
+    filename, dependencies = await read_package_lock_upload(file)
 
     return {
         "filename": filename,
+        "ecosystem": "npm",
         "dependency_count": len(dependencies),
         "dependencies": [
             dependency.model_dump()
@@ -121,11 +73,11 @@ async def preview_requirements_file(
     }
 
 
-@app.post("/files/requirements/analyze")
-async def analyze_requirements_file(
+@router.post("/analyze")
+async def analyze_package_lock(
     file: UploadFile,
 ) -> dict[str, object]:
-    filename, dependencies = await read_requirements_upload(file)
+    filename, dependencies = await read_package_lock_upload(file)
 
     try:
         vulnerability_groups = await query_osv_batch(dependencies)
@@ -160,6 +112,7 @@ async def analyze_requirements_file(
 
     return {
         "filename": filename,
+        "ecosystem": "npm",
         "dependency_count": len(dependencies),
         "vulnerable_dependency_count": (
             vulnerable_dependency_count
