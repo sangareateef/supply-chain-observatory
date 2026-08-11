@@ -1,6 +1,6 @@
 # Supply Chain Observatory
 
-Observatoire DevSecOps destiné à analyser les risques associés aux dépendances open source des projets Python et JavaScript.
+Observatoire destiné à analyser les risques associés aux dépendances open source des projets Python et JavaScript.
 
 ## Auteurs
 
