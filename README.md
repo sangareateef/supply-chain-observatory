@@ -120,15 +120,68 @@ samples/
 
 ## État du projet
 
-Le socle de l’API et l’analyse des vulnérabilités Python et JavaScript sont fonctionnels.
+Le socle de l’API, l’analyse des vulnérabilités Python et JavaScript, l’analyse des licences et le calcul du score de risque sont fonctionnels.
 
 Les prochaines étapes sont :
 
-- analyse des licences ;
-- signaux de maintenabilité ;
+- ajout des signaux de maintenabilité ;
 - détection de comportements suspects ;
-- calcul du score de risque ;
 - création du tableau de bord ;
-- tests automatisés ;
+- ajout de tests automatisés ;
 - conteneurisation avec Docker ;
 - préparation de la démonstration et de la soutenance.
+
+## Score de risque
+
+L’endpoint `POST /dependencies/risk` analyse une version précise d’une dépendance en combinant les vulnérabilités connues et les métadonnées du paquet.
+
+Le score va de `0` à `100` :
+
+- `0` indique un risque minimal détecté ;
+- `100` indique un risque maximal ;
+- ce score n’est ni un pourcentage de santé ni une probabilité d’attaque.
+
+### Signaux analysés
+
+| Signal | Points maximum |
+|---|---:|
+| Vulnérabilités connues | 55 |
+| Licence absente ou contraignante | 15 |
+| Version déclarée obsolète | 15 |
+| Ancienneté de la version | 10 |
+| Métadonnées ou dépôt source manquants | 5 |
+
+La gravité des vulnérabilités est pondérée ainsi :
+
+| Gravité | Points par vulnérabilité |
+|---|---:|
+| Critique | 50 |
+| Élevée | 25 |
+| Modérée | 7 |
+| Faible | 2 |
+| Inconnue | 3 |
+
+La composante liée aux vulnérabilités est plafonnée à `55` points.
+
+### Niveaux de risque
+
+| Score | Niveau |
+|---:|---|
+| 0 à 24 | Faible |
+| 25 à 49 | Modéré |
+| 50 à 79 | Élevé |
+| 80 à 100 | Critique |
+
+Le champ `age_years` représente l’âge de la version analysée en années. Il ne représente pas son état de santé.
+
+La méthode actuelle est identifiée par `score_version: 1.1`, afin que ses évolutions futures restent traçables.
+
+### Exemple de requête
+
+```json
+{
+  "ecosystem": "PyPI",
+  "name": "requests",
+  "version": "2.19.0"
+}
+```
