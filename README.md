@@ -1,0 +1,134 @@
+# Supply Chain Observatory
+
+Observatoire DevSecOps destiné à analyser les risques associés aux dépendances open source des projets Python et JavaScript.
+
+## Auteurs
+
+- Ateef Sangare
+- Koudedia Sissoko
+
+## Objectif
+
+Le projet permet d’importer les dépendances d’une application et de rechercher automatiquement leurs vulnérabilités connues grâce à la base de données OSV.
+
+L’observatoire prendra progressivement en compte :
+
+- les vulnérabilités connues ;
+- les licences ;
+- la maintenabilité des paquets ;
+- les signaux de paquets potentiellement malveillants ;
+- un score de risque explicable.
+
+## Fonctionnalités disponibles
+
+- API REST développée avec FastAPI ;
+- documentation Swagger automatique ;
+- analyse d’une dépendance Python ou JavaScript ;
+- import d’un fichier Python `requirements.txt` ;
+- import d’un fichier JavaScript `package-lock.json` ;
+- analyse groupée des dépendances avec OSV ;
+- fichiers vulnérables d’exemple pour la démonstration.
+
+## Technologies utilisées
+
+- Python 3.12 ou version supérieure ;
+- FastAPI ;
+- Pydantic ;
+- HTTPX ;
+- OSV API ;
+- Git et GitHub.
+
+## Installation sous Windows
+
+Cloner le dépôt :
+
+```powershell
+git clone https://github.com/sangareateef/supply-chain-observatory.git
+cd supply-chain-observatory
+```
+
+Créer l’environnement virtuel :
+
+```powershell
+py -m venv .venv
+```
+
+Activer l’environnement :
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy RemoteSigned
+.\.venv\Scripts\Activate.ps1
+```
+
+Installer les dépendances :
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+## Démarrage de l’API
+
+```powershell
+python -m uvicorn app.main:app --reload
+```
+
+La documentation interactive est ensuite disponible à l’adresse :
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+## Principaux endpoints
+
+| Méthode | Endpoint | Description |
+|---|---|---|
+| GET | `/` | Informations générales sur l’API |
+| GET | `/health` | Vérification du fonctionnement de l’API |
+| POST | `/dependencies/preview` | Validation d’une dépendance |
+| POST | `/dependencies/analyze` | Analyse OSV d’une dépendance |
+| POST | `/files/requirements/preview` | Lecture d’un fichier `requirements.txt` |
+| POST | `/files/requirements/analyze` | Analyse d’un fichier `requirements.txt` |
+| POST | `/files/package-lock/preview` | Lecture d’un fichier `package-lock.json` |
+| POST | `/files/package-lock/analyze` | Analyse d’un fichier `package-lock.json` |
+
+## Fichiers de démonstration
+
+Le dossier `samples` contient :
+
+- `requirements-vulnerable.txt` pour Python ;
+- `package-lock-vulnerable.json` pour JavaScript.
+
+Ces fichiers utilisent volontairement d’anciennes versions de dépendances afin de produire des vulnérabilités pendant la démonstration.
+
+## Structure actuelle
+
+```text
+app/
+├── routers/
+│   └── npm.py
+├── services/
+│   ├── osv.py
+│   ├── package_lock_parser.py
+│   └── requirements_parser.py
+├── main.py
+└── schemas.py
+
+samples/
+├── package-lock-vulnerable.json
+└── requirements-vulnerable.txt
+```
+
+## État du projet
+
+Le socle de l’API et l’analyse des vulnérabilités Python et JavaScript sont fonctionnels.
+
+Les prochaines étapes sont :
+
+- analyse des licences ;
+- signaux de maintenabilité ;
+- détection de comportements suspects ;
+- calcul du score de risque ;
+- création du tableau de bord ;
+- tests automatisés ;
+- conteneurisation avec Docker ;
+- préparation de la démonstration et de la soutenance.
