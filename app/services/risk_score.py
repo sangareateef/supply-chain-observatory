@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 from typing import Any
+from app.services.severity import calculate_vulnerability_points
 
 
 def parse_published_at(
@@ -45,6 +46,7 @@ def has_source_repository(
 def calculate_risk_score(
     *,
     vulnerability_count: int,
+    severity_counts: dict[str, int],
     licenses: list[str],
     is_deprecated: bool,
     published_at: str | None,
@@ -61,14 +63,9 @@ def calculate_risk_score(
     }
     reasons: list[str] = []
 
-    if vulnerability_count >= 10:
-        breakdown["vulnerabilities"] = 55
-    elif vulnerability_count >= 5:
-        breakdown["vulnerabilities"] = 45
-    elif vulnerability_count >= 2:
-        breakdown["vulnerabilities"] = 35
-    elif vulnerability_count == 1:
-        breakdown["vulnerabilities"] = 20
+    breakdown["vulnerabilities"] = calculate_vulnerability_points(
+        severity_counts
+    )
 
     if vulnerability_count > 0:
         reasons.append(
@@ -169,7 +166,7 @@ def calculate_risk_score(
         "max_score": 100,
         "level": level,
         "level_label": level_label,
-        "score_version": "1.0",
+        "score_version": "1.1",
         "age_years": (
             round(age_years, 1)
             if age_years is not None

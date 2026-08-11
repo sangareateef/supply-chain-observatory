@@ -7,6 +7,7 @@ from app.schemas import DependencyInput
 from app.services.deps_dev import query_deps_dev
 from app.services.osv import query_osv
 from app.services.risk_score import calculate_risk_score
+from app.services.severity import summarize_severities
 
 router = APIRouter(
     prefix="/dependencies",
@@ -33,9 +34,12 @@ async def analyze_dependency_risk(
         ) from error
 
     licenses = metadata.get("licenses", [])
-
+    
+    severity_counts = summarize_severities(vulnerabilities)
+   
     risk = calculate_risk_score(
         vulnerability_count=len(vulnerabilities),
+        severity_counts=severity_counts,
         licenses=licenses,
         is_deprecated=bool(
             metadata.get("is_deprecated", False)
@@ -48,6 +52,8 @@ async def analyze_dependency_risk(
             [],
         ),
     )
+
+    risk["severity_counts"] = severity_counts
 
     return {
         "dependency": dependency.model_dump(),
