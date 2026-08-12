@@ -120,11 +120,10 @@ samples/
 
 ## État du projet
 
-Le socle de l’API, l’analyse des vulnérabilités Python et JavaScript, l’analyse des licences et le calcul du score de risque sont fonctionnels.
+Le socle de l’API ainsi que les analyses des vulnérabilités, des licences, du score de risque et de la maintenabilité sont fonctionnels pour les dépendances Python et JavaScript.
 
 Les prochaines étapes sont :
 
-- ajout des signaux de maintenabilité ;
 - détection de comportements suspects ;
 - création du tableau de bord ;
 - ajout de tests automatisés ;
@@ -185,3 +184,42 @@ La méthode actuelle est identifiée par `score_version: 1.1`, afin que ses évo
   "version": "2.19.0"
 }
 ```
+
+## Analyse de la maintenabilité
+
+L’endpoint `POST /dependencies/maintainability` analyse les informations de maintenance du dépôt source associé à une dépendance.
+
+L’analyse s’appuie sur les données de deps.dev et d’OpenSSF Scorecard.
+
+Elle retourne notamment :
+
+- les informations du dépôt source ;
+- le nombre d’étoiles, de forks et d’issues ouvertes ;
+- un score d’activité compris entre 0 et 10 ;
+- le niveau d’activité du projet ;
+- le score OpenSSF global ;
+- plusieurs contrôles disponibles, notamment la maintenance récente et la revue de code.
+
+Le score d’activité mesure l’activité récente du dépôt. Un score élevé indique que des commits ou des activités liées aux issues ont été détectés récemment.
+
+Les étoiles, les forks et les issues ouvertes sont affichés comme informations complémentaires. Ils ne déterminent pas directement le score d’activité.
+
+Si aucun dépôt source n’est associé à la version analysée, l’API retourne le statut `unavailable` sans provoquer d’erreur du serveur.
+
+### Niveaux d’activité
+
+| Score | Niveau |
+|---:|---|
+| 0 à 1 | Très faible |
+| 2 à 4 | Limitée |
+| 5 à 7 | Active |
+| 8 à 10 | Très active |
+
+### Exemple de requête
+
+```json
+{
+  "ecosystem": "npm",
+  "name": "axios",
+  "version": "0.21.1"
+}
