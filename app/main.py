@@ -7,19 +7,20 @@ from app.services.requirements_parser import parse_requirements_txt
 from app.routers.licenses import router as licenses_router
 from app.routers.npm import router as npm_router
 from app.routers.risk import router as risk_router
-
+from app.routers.maintainability import router as maintainability_router
 MAX_REQUIREMENTS_FILE_SIZE = 1_000_000
 
 
 app = FastAPI(
     title="Observatoire du risque supply chain open source",
     description="API d'analyse des dépendances Python et JavaScript.",
-    version="0.7.0",
+    version="0.8.0",
 )
 
 app.include_router(licenses_router)
 app.include_router(risk_router)
 app.include_router(npm_router)
+app.include_router(maintainability_router)
 
 
 async def read_requirements_upload(
