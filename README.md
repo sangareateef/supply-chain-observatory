@@ -118,18 +118,6 @@ samples/
 └── requirements-vulnerable.txt
 ```
 
-## État du projet
-
-Le socle de l’API ainsi que les analyses des vulnérabilités, des licences, du score de risque et de la maintenabilité sont fonctionnels pour les dépendances Python et JavaScript.
-
-Les prochaines étapes sont :
-
-- détection de comportements suspects ;
-- création du tableau de bord ;
-- ajout de tests automatisés ;
-- conteneurisation avec Docker ;
-- préparation de la démonstration et de la soutenance.
-
 ## Score de risque
 
 L’endpoint `POST /dependencies/risk` analyse une version précise d’une dépendance en combinant les vulnérabilités connues et les métadonnées du paquet.
@@ -223,3 +211,47 @@ Si aucun dépôt source n’est associé à la version analysée, l’API retour
   "name": "axios",
   "version": "0.21.1"
 }
+```
+## Analyse des signaux suspects
+
+L’endpoint `POST /dependencies/signals` recherche dans les métadonnées d’une version de paquet des indicateurs nécessitant une vérification humaine.
+
+L’analyse peut notamment signaler :
+
+- une version absente du registre ;
+- une version retirée ou déclarée obsolète ;
+- des scripts exécutés pendant l’installation ;
+- l’absence de dépôt source identifié ;
+- l’absence de licence déclarée.
+
+Chaque signal contient un niveau de gravité, les éléments observés et une recommandation. Ces indicateurs ne constituent pas une preuve de malveillance : ils servent à orienter une vérification humaine.
+
+### Niveaux de gravité
+
+| Niveau | Signification |
+| --- | --- |
+| Aucun | Aucun signal détecté |
+| Faible | Information à vérifier |
+| Moyen | Vérification recommandée |
+| Élevé | Vérification prioritaire |
+
+### Exemple de requête
+
+```json
+{
+  "ecosystem": "npm",
+  "name": "esbuild",
+  "version": "0.21.5"
+}
+```
+
+## État du projet et prochaines étapes
+
+Le socle de l’API ainsi que les analyses des vulnérabilités, des licences, du score de risque, de la maintenabilité et des signaux suspects sont fonctionnels pour les dépendances Python et JavaScript.
+
+Les prochaines étapes sont :
+
+- création du tableau de bord ;
+- ajout de tests automatisés ;
+- conteneurisation avec Docker ;
+- préparation de la démonstration et de la soutenance.
