@@ -9,6 +9,8 @@ from app.routers.npm import router as npm_router
 from app.routers.risk import router as risk_router
 from app.routers.maintainability import router as maintainability_router
 from app.routers.signals import router as signals_router
+from fastapi.staticfiles import StaticFiles
+from app.routers.dashboard import router as dashboard_router
 MAX_REQUIREMENTS_FILE_SIZE = 1_000_000
 
 
@@ -23,6 +25,14 @@ app.include_router(risk_router)
 app.include_router(npm_router)
 app.include_router(maintainability_router)
 app.include_router(signals_router)
+
+app.mount(
+    "/static",
+    StaticFiles(directory="app/static"),
+    name="static",
+)
+
+app.include_router(dashboard_router)
 
 
 async def read_requirements_upload(
