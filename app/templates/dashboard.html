@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Supply Chain Observatory</title>
+
+    <meta
+        name="description"
+        content="Tableau de bord d’analyse des risques liés aux dépendances open source."
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', path='/css/dashboard.css') }}"
+    >
+
+    <script
+        src="{{ url_for('static', path='/js/dashboard.js') }}"
+        defer
+    ></script>
+</head>
+
+<body>
+    <div class="app-shell">
+
+        <header class="topbar">
+            <a class="brand" href="/dashboard">
+                <span class="brand-mark">SC</span>
+
+                <span class="brand-text">
+                    <strong>Supply Chain</strong>
+                    <small>Observatory</small>
+                </span>
+            </a>
+
+            <div class="topbar-actions">
+                <div class="api-status">
+                    <span class="status-dot"></span>
+                    <span>API opérationnelle</span>
+                </div>
+
+                <a
+                    class="docs-link"
+                    href="/docs"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Documentation API
+                </a>
+            </div>
+        </header>
+
+        <main class="main-content">
+
+            <section class="hero">
+                <div class="hero-content">
+                    <p class="eyebrow">
+                        Analyse des dépendances open source
+                    </p>
+
+                    <h1>
+                        Identifiez les risques avant qu’ils
+                        n’atteignent votre projet.
+                    </h1>
+
+                    <p class="hero-description">
+                        Analysez les vulnérabilités, les licences,
+                        la maintenabilité et les signaux suspects
+                        d’un paquet Python ou JavaScript.
+                    </p>
+
+                    <div class="hero-badges">
+                        <span>Python</span>
+                        <span>JavaScript</span>
+                        <span>OSV</span>
+                        <span>deps.dev</span>
+                        <span>OpenSSF Scorecard</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="analysis-layout">
+
+                <article class="panel analysis-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="section-kicker">Nouvelle analyse</p>
+                            <h2>Choisissez une dépendance</h2>
+                        </div>
+
+                        <span class="step-badge">01</span>
+                    </div>
+
+                    <form id="analysis-form" autocomplete="off">
+
+                        <div class="form-grid">
+                            <div class="form-field">
+                                <label for="ecosystem">Écosystème</label>
+
+                                <select
+                                    id="ecosystem"
+                                    name="ecosystem"
+                                    required
+                                >
+                                    <option value="PyPI">PyPI — Python</option>
+                                    <option value="npm">npm — JavaScript</option>
+                                </select>
+                            </div>
+
+                            <div class="form-field">
+                                <label for="package-name">
+                                    Nom du paquet
+                                </label>
+
+                                <input
+                                    id="package-name"
+                                    name="package-name"
+                                    type="text"
+                                    placeholder="Exemple : requests"
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-field">
+                                <label for="package-version">
+                                    Version
+                                </label>
+
+                                <input
+                                    id="package-version"
+                                    name="package-version"
+                                    type="text"
+                                    placeholder="Exemple : 2.19.0"
+                                    required
+                                >
+                            </div>
+                        </div>
+
+                        <div class="sample-area">
+                            <span>Exemples rapides :</span>
+
+                            <button
+                                class="sample-button"
+                                type="button"
+                                data-ecosystem="PyPI"
+                                data-name="requests"
+                                data-version="2.19.0"
+                            >
+                                requests 2.19.0
+                            </button>
+
+                            <button
+                                class="sample-button"
+                                type="button"
+                                data-ecosystem="PyPI"
+                                data-name="httpx"
+                                data-version="0.28.1"
+                            >
+                                httpx 0.28.1
+                            </button>
+
+                            <button
+                                class="sample-button"
+                                type="button"
+                                data-ecosystem="npm"
+                                data-name="axios"
+                                data-version="0.21.1"
+                            >
+                                axios 0.21.1
+                            </button>
+                        </div>
+
+                        <p
+                            id="form-error"
+                            class="form-error"
+                            role="alert"
+                            hidden
+                        ></p>
+
+                        <button
+                            id="analyze-button"
+                            class="primary-button"
+                            type="submit"
+                        >
+                            <span>Analyser la dépendance</span>
+                            <span aria-hidden="true">→</span>
+                        </button>
+                    </form>
+                </article>
+
+                <aside class="panel process-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <p class="section-kicker">Processus</p>
+                            <h2>Analyse combinée</h2>
+                        </div>
+
+                        <span class="step-badge">02</span>
+                    </div>
+
+                    <ul class="process-list">
+                        <li>
+                            <div>
+                                <strong>Vulnérabilités</strong>
+                                <small>Recherche dans la base OSV</small>
+                            </div>
+                        </li>
+
+                        <li>
+                            <div>
+                                <strong>Métadonnées et licences</strong>
+                                <small>Informations fournies par deps.dev</small>
+                            </div>
+                        </li>
+
+                        <li>
+                            <div>
+                                <strong>Maintenabilité</strong>
+                                <small>Activité et contrôles OpenSSF</small>
+                            </div>
+                        </li>
+
+                        <li>
+                            <div>
+                                <strong>Signaux suspects</strong>
+                                <small>Détection de comportements inhabituels</small>
+                            </div>
+                        </li>
+                    </ul>
+                </aside>
+            </section>
+
+            <section
+                id="loading-state"
+                class="state-card"
+                aria-live="polite"
+                hidden
+            >
+                <div class="loader"></div>
+
+                <div>
+                    <h2>Analyse en cours</h2>
+                    <p>
+                        Interrogation des différentes sources de données…
+                    </p>
+                </div>
+            </section>
+
+            <section id="empty-state" class="empty-state">
+                <div class="empty-icon">⌁</div>
+
+                <h2>Prêt pour une première analyse</h2>
+
+                <p>
+                    Renseignez un paquet et sa version pour afficher
+                    un rapport complet et explicable.
+                </p>
+            </section>
+
+            <section id="results-section" class="results-section" hidden>
+
+                <div class="results-heading">
+                    <div>
+                        <p class="section-kicker">Rapport d’analyse</p>
+
+                        <h2 id="result-package-name">
+                            Dépendance analysée
+                        </h2>
+
+                        <p id="result-package-meta">
+                            Écosystème et version
+                        </p>
+                    </div>
+
+                    <button
+                        id="new-analysis-button"
+                        class="secondary-button"
+                        type="button"
+                    >
+                        Nouvelle analyse
+                    </button>
+                </div>
+
+                <div class="summary-grid">
+
+                    <article class="summary-card risk-summary">
+                        <p>Score de risque</p>
+
+                        <div class="risk-score-line">
+                            <strong id="risk-score">--</strong>
+                            <span>/100</span>
+                        </div>
+
+                        <span
+                            id="risk-level"
+                            class="level-badge"
+                        >
+                            Indisponible
+                        </span>
+                    </article>
+
+                    <article class="summary-card">
+                        <p>Vulnérabilités</p>
+                        <strong id="vulnerability-count">--</strong>
+                        <small>vulnérabilités connues</small>
+                    </article>
+
+                    <article class="summary-card">
+                        <p>Licence</p>
+                        <strong id="license-value">--</strong>
+                        <small id="license-status">Information disponible</small>
+                    </article>
+
+                    <article class="summary-card">
+                        <p>Activité du projet</p>
+                        <strong id="activity-score">--</strong>
+                        <small id="activity-level">Score sur 10</small>
+                    </article>
+
+                    <article class="summary-card">
+                        <p>Signaux suspects</p>
+                        <strong id="signal-count">--</strong>
+                        <small id="signal-level">signaux détectés</small>
+                    </article>
+                </div>
+
+                <div class="details-grid">
+
+                    <article class="panel result-panel">
+                        <div class="result-panel-heading">
+                            <div>
+                                <p class="section-kicker">Explication</p>
+                                <h3>Composition du score</h3>
+                            </div>
+                        </div>
+
+                        <div class="breakdown-list">
+                            <div class="breakdown-row">
+                                <span>Vulnérabilités</span>
+                                <strong id="risk-vulnerability-points">--</strong>
+                            </div>
+
+                            <div class="breakdown-row">
+                                <span>Licence</span>
+                                <strong id="risk-license-points">--</strong>
+                            </div>
+
+                            <div class="breakdown-row">
+                                <span>Obsolescence</span>
+                                <strong id="risk-deprecation-points">--</strong>
+                            </div>
+
+                            <div class="breakdown-row">
+                                <span>Ancienneté</span>
+                                <strong id="risk-age-points">--</strong>
+                            </div>
+
+                            <div class="breakdown-row">
+                                <span>Métadonnées</span>
+                                <strong id="risk-metadata-points">--</strong>
+                            </div>
+                        </div>
+
+                        <div class="reason-box">
+                            <h4>Raisons principales</h4>
+                            <ul id="risk-reasons"></ul>
+                        </div>
+                    </article>
+
+                    <article class="panel result-panel">
+                        <div class="result-panel-heading">
+                            <div>
+                                <p class="section-kicker">Gravité</p>
+                                <h3>Répartition des vulnérabilités</h3>
+                            </div>
+                        </div>
+
+                        <div class="severity-grid">
+                            <div>
+                                <span class="severity-dot critical"></span>
+                                <small>Critiques</small>
+                                <strong id="severity-critical">0</strong>
+                            </div>
+
+                            <div>
+                                <span class="severity-dot high"></span>
+                                <small>Élevées</small>
+                                <strong id="severity-high">0</strong>
+                            </div>
+
+                            <div>
+                                <span class="severity-dot moderate"></span>
+                                <small>Modérées</small>
+                                <strong id="severity-moderate">0</strong>
+                            </div>
+
+                            <div>
+                                <span class="severity-dot low"></span>
+                                <small>Faibles</small>
+                                <strong id="severity-low">0</strong>
+                            </div>
+
+                            <div>
+                                <span class="severity-dot unknown"></span>
+                                <small>Inconnues</small>
+                                <strong id="severity-unknown">0</strong>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="panel result-panel wide-panel">
+                        <div class="result-panel-heading">
+                            <div>
+                                <p class="section-kicker">Détails</p>
+                                <h3>Vulnérabilités identifiées</h3>
+                            </div>
+                        </div>
+
+                        <div
+                            id="vulnerabilities-list"
+                            class="items-list"
+                        ></div>
+                    </article>
+
+                    <article class="panel result-panel">
+                        <div class="result-panel-heading">
+                            <div>
+                                <p class="section-kicker">Projet source</p>
+                                <h3>Maintenabilité</h3>
+                            </div>
+                        </div>
+
+                        <dl class="metadata-list">
+                            <div>
+                                <dt>Projet</dt>
+                                <dd id="project-name">--</dd>
+                            </div>
+
+                            <div>
+                                <dt>Étoiles</dt>
+                                <dd id="project-stars">--</dd>
+                            </div>
+
+                            <div>
+                                <dt>Issues ouvertes</dt>
+                                <dd id="project-issues">--</dd>
+                            </div>
+
+                            <div>
+                                <dt>Score OpenSSF</dt>
+                                <dd id="scorecard-score">--</dd>
+                            </div>
+                        </dl>
+                    </article>
+
+                    <article class="panel result-panel">
+                        <div class="result-panel-heading">
+                            <div>
+                                <p class="section-kicker">Surveillance</p>
+                                <h3>Signaux suspects</h3>
+                            </div>
+                        </div>
+
+                        <div
+                            id="signals-list"
+                            class="items-list compact-list"
+                        ></div>
+                    </article>
+                </div>
+            </section>
+        </main>
+
+        <footer class="footer">
+            <p>
+                Projet réalisé par Ateef Sangare et Koudedia Sissoko
+            </p>
+
+            <p>
+                Supply Chain Observatory
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
