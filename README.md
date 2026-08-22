@@ -255,3 +255,29 @@ Les prochaines étapes sont :
 - ajout de tests automatisés ;
 - conteneurisation avec Docker ;
 - préparation de la démonstration et de la soutenance.
+
+## Démarrage avec Docker
+
+### Prérequis
+
+- Docker Desktop
+
+### Lancer l’application
+
+```powershell
+docker compose up --build
+```
+
+L’application est ensuite accessible aux adresses suivantes :
+
+- tableau de bord : http://127.0.0.1:8000/dashboard
+- documentation de l’API : http://127.0.0.1:8000/docs
+- état de l’API : http://127.0.0.1:8000/health
+
+### Arrêter l’application
+
+Appuyer sur `Ctrl+C`, puis exécuter :
+
+```powershell
+docker compose down
+```
