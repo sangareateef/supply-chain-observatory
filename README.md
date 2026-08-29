@@ -9,33 +9,49 @@ Observatoire destiné à analyser les risques associés aux dépendances open so
 
 ## Objectif
 
-Le projet permet d’importer les dépendances d’une application et de rechercher automatiquement leurs vulnérabilités connues grâce à la base de données OSV.
+Supply Chain Observatory analyse les risques associés à une version précise d’une dépendance open source Python ou JavaScript.
 
-L’observatoire prendra progressivement en compte :
+L’application prend en compte :
 
 - les vulnérabilités connues ;
-- les licences ;
+- les licences et les métadonnées ;
 - la maintenabilité des paquets ;
-- les signaux de paquets potentiellement malveillants ;
-- un score de risque explicable.
+- les informations OpenSSF Scorecard ;
+- les signaux potentiellement suspects ;
+- un score de risque explicable compris entre 0 et 100.
+
+Le score représente un niveau de risque à examiner. Il ne correspond ni à une probabilité d’attaque ni à un pourcentage de sécurité.
 
 ## Fonctionnalités disponibles
 
 - API REST développée avec FastAPI ;
-- documentation Swagger automatique ;
+- documentation interactive Swagger/OpenAPI ;
+- tableau de bord web ;
 - analyse d’une dépendance Python ou JavaScript ;
 - import d’un fichier Python `requirements.txt` ;
 - import d’un fichier JavaScript `package-lock.json` ;
-- analyse groupée des dépendances avec OSV ;
-- fichiers vulnérables d’exemple pour la démonstration.
+- recherche des vulnérabilités connues avec OSV ;
+- récupération des licences et des métadonnées avec deps.dev ;
+- calcul d’un score de risque explicable ;
+- analyse de la maintenabilité du dépôt source ;
+- récupération des informations OpenSSF Scorecard ;
+- détection de signaux suspects ;
+- tests automatisés avec Pytest ;
+- lancement local ou avec Docker Compose.
 
 ## Technologies utilisées
 
 - Python 3.12 ou version supérieure ;
 - FastAPI ;
+- Uvicorn ;
 - Pydantic ;
 - HTTPX ;
+- HTML, CSS et JavaScript ;
+- Pytest ;
+- Docker et Docker Compose ;
 - OSV API ;
+- deps.dev ;
+- OpenSSF Scorecard ;
 - Git et GitHub.
 
 ## Installation sous Windows
@@ -66,17 +82,27 @@ Installer les dépendances :
 python -m pip install -r requirements.txt
 ```
 
-## Démarrage de l’API
+## Tests automatisés
+
+Pour exécuter les tests :
+
+```powershell
+python -m pytest
+```
+
+## Démarrage de l’application
 
 ```powershell
 python -m uvicorn app.main:app --reload
 ```
 
-La documentation interactive est ensuite disponible à l’adresse :
+L’application est ensuite accessible aux adresses suivantes :
 
-```text
-http://127.0.0.1:8000/docs
-```
+- tableau de bord : <http://127.0.0.1:8000/dashboard>
+- documentation Swagger/OpenAPI : <http://127.0.0.1:8000/docs>
+- état de l’API : <http://127.0.0.1:8000/health>
+
+Pour arrêter le serveur, utiliser `Ctrl+C`.
 
 ## Principaux endpoints
 
@@ -84,8 +110,13 @@ http://127.0.0.1:8000/docs
 |---|---|---|
 | GET | `/` | Informations générales sur l’API |
 | GET | `/health` | Vérification du fonctionnement de l’API |
+| GET | `/dashboard` | Affichage du tableau de bord |
 | POST | `/dependencies/preview` | Validation d’une dépendance |
-| POST | `/dependencies/analyze` | Analyse OSV d’une dépendance |
+| POST | `/dependencies/analyze` | Analyse générale d’une dépendance |
+| POST | `/dependencies/licenses` | Recherche de la licence et des métadonnées |
+| POST | `/dependencies/risk` | Calcul du score de risque |
+| POST | `/dependencies/maintainability` | Analyse de la maintenabilité |
+| POST | `/dependencies/signals` | Recherche de signaux suspects |
 | POST | `/files/requirements/preview` | Lecture d’un fichier `requirements.txt` |
 | POST | `/files/requirements/analyze` | Analyse d’un fichier `requirements.txt` |
 | POST | `/files/package-lock/preview` | Lecture d’un fichier `package-lock.json` |
@@ -100,22 +131,17 @@ Le dossier `samples` contient :
 
 Ces fichiers utilisent volontairement d’anciennes versions de dépendances afin de produire des vulnérabilités pendant la démonstration.
 
-## Structure actuelle
+## Structure principale
 
 ```text
-app/
-├── routers/
-│   └── npm.py
-├── services/
-│   ├── osv.py
-│   ├── package_lock_parser.py
-│   └── requirements_parser.py
-├── main.py
-└── schemas.py
-
-samples/
-├── package-lock-vulnerable.json
-└── requirements-vulnerable.txt
+supply-chain-observatory/
+├── app/                 Application FastAPI, frontend, routes et services
+├── samples/             Fichiers d’exemple
+├── tests/               Tests automatisés
+├── Dockerfile           Construction de l’image Docker
+├── compose.yaml         Démarrage avec Docker Compose
+├── requirements.txt     Dépendances Python
+└── README.md            Documentation principale
 ```
 
 ## Score de risque
@@ -245,16 +271,26 @@ Chaque signal contient un niveau de gravité, les éléments observés et une re
 }
 ```
 
-## État du projet et prochaines étapes
+## État du projet
 
-Le socle de l’API ainsi que les analyses des vulnérabilités, des licences, du score de risque, de la maintenabilité et des signaux suspects sont fonctionnels pour les dépendances Python et JavaScript.
+Le prototype est fonctionnel et validé pour les dépendances Python et JavaScript.
 
-Les prochaines étapes sont :
+Les éléments suivants sont terminés :
 
-- création du tableau de bord ;
-- ajout de tests automatisés ;
-- conteneurisation avec Docker ;
-- préparation de la démonstration et de la soutenance.
+- API FastAPI ;
+- analyse des vulnérabilités ;
+- analyse des licences et des métadonnées ;
+- calcul du score de risque explicable ;
+- analyse de la maintenabilité ;
+- détection des signaux suspects ;
+- import de `requirements.txt` et de `package-lock.json` ;
+- tableau de bord final ;
+- tests automatisés ;
+- conteneurisation Docker ;
+- documentation technique ;
+- validation des scénarios `httpx 0.28.1`, `requests 2.19.0` et `axios 0.21.1`.
+
+Les résultats peuvent évoluer, car OSV, deps.dev et OpenSSF mettent régulièrement leurs données à jour.
 
 ## Démarrage avec Docker
 
@@ -281,3 +317,4 @@ Appuyer sur `Ctrl+C`, puis exécuter :
 ```powershell
 docker compose down
 ```
+
